@@ -1,0 +1,82 @@
+stop "img" load rec
+: red 255 0 0 img_color ;
+: green 0 255 0 img_color ;
+: blue 0 0 255 img_color ;
+: yellow 255 255 0 img_color ;
+
+: sq
+16 * swap 16 * swap 16 16 img_rect
+;
+
+: sqline1
+# y d
+dec
+# y d x
+dup 2 *
+# y d x y
+-3 peak
+sq
+# y d d
+dup 
+_sqline1 goto
+drop drop
+end
+;
+
+: sqline2
+dec
+dup 2 * 1 +
+-3 peak
+sq
+dup 
+_sqline2 goto
+drop drop
+end
+;
+
+: checker 
+dec 
+dup 2 *  8 _sqline1 call
+dup 2 * 1 + 8 _sqline2 call
+dup _checker goto
+end
+;
+
+
+: microcheckf
+# x y d  
+dec
+-3 peak
+-3 peak
+-3 peak
+2 * 170 img_col
+-3 peak
+-3 peak
+-3 peak
+2 * 1 + 85 img_col
+dup _microcheckf goto
+end ;
+
+: microcheck 4 _microcheckf call ;
+
+stop
+
+red
+img_fill
+
+green 
+
+8 _checker call
+
+blue 
+
+0 0 microcheck
+green 31 0 microcheck
+blue 31 1 microcheck
+yellow 31 2 microcheck
+
+"red.png" img_write
+
+u
+
+quit
