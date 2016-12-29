@@ -75,14 +75,26 @@ void img_write(const char *filename)
     lodepng_encode32_file(filename, data, WIDTH, HEIGHT);
 }
 
-static void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char s)
+static void img_row(unsigned char x, unsigned char y, unsigned char col, unsigned char s)
 {
     unsigned int c;
     unsigned int x_pos = x * 8; 
-    unsigned int y_pos = y * 8 + row;
+    unsigned int y_pos = y * 8 + col;
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
             img_point(x_pos + c, y_pos);
+        }
+    }
+}
+
+static void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char s)
+{
+    unsigned int c;
+    unsigned int x_pos = x * 8 + row; 
+    unsigned int y_pos = y * 8;
+    for(c = 0; c < 8; c++) {
+        if(s & (1 << c)) {
+            img_point(x_pos, y_pos + c);
         }
     }
 }
@@ -197,6 +209,32 @@ static runt_int rproc_col(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_row(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s; 
+    runt_int rc;
+    unsigned char x, y, row, state;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    state = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    row = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x = s->f;
+
+    img_row(x, y, row, state);
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -205,4 +243,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_point", 9, rproc_point);
     runt_word_define(vm, "img_rect", 8, rproc_rect);
     runt_word_define(vm, "img_col", 7, rproc_col);
+    runt_word_define(vm, "img_row", 7, rproc_row);
 }
