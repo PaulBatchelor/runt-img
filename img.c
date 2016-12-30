@@ -82,7 +82,7 @@ static void img_row(unsigned char x, unsigned char y, unsigned char col, unsigne
     unsigned int y_pos = y * 8 + col;
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
-            img_point(x_pos + c, y_pos);
+            img_point(x_pos + (7 - c), y_pos);
         }
     }
 }
@@ -94,7 +94,7 @@ static void img_col(unsigned char x, unsigned char y, unsigned char row, unsigne
     unsigned int y_pos = y * 8;
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
-            img_point(x_pos, y_pos + c);
+            img_point(x_pos, y_pos + (7 - c));
         }
     }
 }
@@ -235,6 +235,25 @@ static runt_int rproc_row(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_bin(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_int i;
+    runt_uint val = 0;
+    for(i = 0; i < 8; i++) {
+        rc = runt_ppop(vm, &s);
+        RUNT_ERROR_CHECK(rc);
+        if(s->f != 0) {
+            val += 1 << i;
+        }
+    }
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = val;
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -244,4 +263,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_rect", 8, rproc_rect);
     runt_word_define(vm, "img_col", 7, rproc_col);
     runt_word_define(vm, "img_row", 7, rproc_row);
+    runt_word_define(vm, "img_bin", 7, rproc_bin);
 }
