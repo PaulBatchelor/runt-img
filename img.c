@@ -1,9 +1,22 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <runt.h>
 #include "lodepng.h"
 
 #define WIDTH 256
 #define HEIGHT 256
+
+#ifndef min
+#define min(A, B) ((A < B) ? A : B)
+#endif
+
+#ifndef max
+#define max(A, B) ((A > B) ? A : B)
+#endif
+
+#ifndef clamp
+#define clamp(X, A, B) (max(A, min(B, X)))
+#endif
 
 static unsigned char data[WIDTH * HEIGHT * 4];
 
@@ -47,8 +60,8 @@ void img_fill()
 void img_point(unsigned int x, unsigned int y)
 {
     unsigned int pos; 
-    x %= WIDTH;
-    y %= HEIGHT;
+    x = clamp(x, 0, WIDTH);
+    y = clamp(y, 0, HEIGHT);
     pos = 4 * y * WIDTH + x * 4;
     data[pos] = current_color[0];
     data[pos + 1] = current_color[1];
@@ -101,33 +114,12 @@ void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char 
     }
 }
 
-/* midpoint circle algorithm */
-void img_circ(int x0, int y0, int radius)
+static void swap(int *a, int *b)
 {
-    int x = radius;
-    int y = 0;
-    int err = 0;
-
-    while(x >= y) {
-        img_point(x0 + x, y0 + y);
-        img_point(x0 + y, y0 + x);
-        img_point(x0 - x, y0 + y);
-        img_point(x0 - y, y0 + x);
-        img_point(x0 - x, y0 - y);
-        img_point(x0 - y, y0 - x);
-        img_point(x0 + x, y0 - y);
-        img_point(x0 + y, y0 - x);
-
-        if(err <= 0) {
-            y += 1;
-            err += 2 * y + 1;
-        } 
-
-        if( err > 0 ) {
-            x -= 1;
-            err -= 2 * x + 1;
-        }
-    }
+    int tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
 }
 
 /* Bresenham line drawing algorith
@@ -137,13 +129,67 @@ void img_circ(int x0, int y0, int radius)
 
 void img_line(int x0, int y0, int x1, int y1) 
 {
-    float t;
     int x, y;
+    int dx, dy;
+    int derror2;
+    int error2;
     char steep = 0;
-    if(abs(x0 - x1) < abs(y0 - y1)) {
-        
-    } else {
 
+    if(abs(x0 - x1) < abs(y0 - y1)) {
+        swap(&x0, &y0);
+        swap(&x1, &y1);
+        steep = 1;
+    } 
+
+    if(x0 > x1) {
+        swap(&x0, &x1);
+        swap(&y0, &y1);
+    } 
+
+    dx = x1 - x0;
+    dy = y1 - y0;
+    derror2 = abs(dy) * 2;
+    error2 = 0;
+    y = y0;
+
+    for(x = x0; x < x1; x++) {
+        if(steep) {
+            img_point(y, x);
+        } else {
+            img_point(x, y);
+        }
+        error2 += derror2;
+        if(error2 > dx) {
+            y += (y1 > y0 ? 1 : -1);
+            error2 -= dx * 2;
+        }
+    }
+}
+
+
+/* midpoint circle algorithm */
+void img_circ(int x0, int y0, int radius)
+{
+    int x = radius;
+    int y = 0;
+    int err = 0;
+
+    while(x >= y) {
+
+        img_line(x0 - x, y0 + y, x0 + x, y0 + y);
+        img_line(x0 - y, y0 + x, x0 + y, y0 + x);
+        img_line(x0 + x, y0 - y, x0 - x, y0 - y);
+        img_line(x0 + y, y0 - x, x0 - y, y0 - x);
+        
+        if(err <= 0) {
+            y += 1;
+            err += 2 * y + 1;
+        } 
+
+        if( err > 0 ) {
+            x -= 1;
+            err -= 2 * x + 1;
+        }
     }
 }
 
@@ -327,6 +373,36 @@ static runt_int rproc_circ(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_line(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint x0;
+    runt_uint y0;
+    runt_uint x1;
+    runt_uint y1;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y1 = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x1 = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y0 = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x0 = s->f;
+
+    img_line(x0, y0, x1, y1);
+
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -338,4 +414,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_row", 7, rproc_row);
     runt_word_define(vm, "img_bin", 7, rproc_bin);
     runt_word_define(vm, "img_circ", 8, rproc_circ);
+    runt_word_define(vm, "img_line", 8, rproc_line);
 }
