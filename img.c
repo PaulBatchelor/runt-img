@@ -33,7 +33,6 @@ void img_fill()
 {
     int x, y;
     int pos;
-    int i;
     for(y = 0; y < HEIGHT; y++)  {
         for(x = 0; x < WIDTH; x++) {
             pos = y * WIDTH * 4 + x * 4;
@@ -54,7 +53,7 @@ void img_point(unsigned int x, unsigned int y)
     data[pos + 3] = current_color[3];
 }
 
-static void img_rect(unsigned int x_pos, 
+void img_rect(unsigned int x_pos, 
     unsigned int y_pos,
     unsigned int width,
     unsigned int height) {
@@ -75,7 +74,7 @@ void img_write(const char *filename)
     lodepng_encode32_file(filename, data, WIDTH, HEIGHT);
 }
 
-static void img_row(unsigned char x, unsigned char y, unsigned char col, unsigned char s)
+void img_row(unsigned char x, unsigned char y, unsigned char col, unsigned char s)
 {
     unsigned int c;
     unsigned int x_pos = x * 8; 
@@ -87,7 +86,7 @@ static void img_row(unsigned char x, unsigned char y, unsigned char col, unsigne
     }
 }
 
-static void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char s)
+void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char s)
 {
     unsigned int c;
     unsigned int x_pos = x * 8 + row; 
