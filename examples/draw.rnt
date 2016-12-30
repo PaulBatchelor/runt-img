@@ -1,0 +1,71 @@
+: hl -1 peak -3 peak 0 255 img_row -1 incn ;
+: hline 0 32 _hl rep drop -1 incn ;
+: vl -1 peak -3 peak 0 255 img_col -1 incn ;
+: vline 0 32 _vl rep drop -1 incn ;
+
+: grids8 
+0 32 _hline rep drop
+0 32 _vline rep drop
+; 
+
+: red 255 0 0 img_color ;
+: green 0 255 0 img_color ;
+: blue 0 0 255 img_color ;
+: yellow 255 255 0 img_color ;
+: white 255 255 255 img_color ;
+
+: sq
+16 * swap 16 * swap 16 16 img_rect
+;
+
+: sqline1
+# y d
+dec
+# y d x
+dup 2 *
+# y d x y
+-3 peak
+sq
+# y d d
+dup 
+_sqline1 goto
+drop drop
+end
+;
+
+: sqline2
+dec
+dup 2 * 1 +
+-3 peak
+sq
+dup 
+_sqline2 goto
+drop drop
+end
+;
+
+: checker 
+dec 
+dup 2 *  8 _sqline1 call
+dup 2 * 1 + 8 _sqline2 call
+dup _checker goto
+end
+;
+
+
+: microcheckf
+# x y d  
+dec
+-3 peak
+-3 peak
+-3 peak
+2 * 170 img_col
+-3 peak
+-3 peak
+-3 peak
+2 * 1 + 85 img_col
+dup _microcheckf goto
+end ;
+
+: microcheck 4 _microcheckf call ;
+

@@ -1,0 +1,19 @@
+"img" load
+"draw" load
+
+white img_fill
+
+
+green 
+8 _checker call
+
+blue 
+
+0 0 microcheck
+green 31 0 microcheck
+blue 31 1 microcheck
+yellow 31 2 microcheck
+
+red grids8
+
+"row.png" img_write

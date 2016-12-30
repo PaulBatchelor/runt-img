@@ -1,0 +1,15 @@
+"img" load
+"draw" load
+
+rec
+: pal red green blue ;
+: pick_color _pal dup psize rnd + ex ;
+: draw_sq pick_color 16 rnd 16 rnd sq ;
+stop 
+
+white img_fill
+
+16 10 _draw_sq rep
+
+"squares.png" img_write
+
