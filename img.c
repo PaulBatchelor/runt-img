@@ -46,7 +46,10 @@ void img_fill()
 
 void img_point(unsigned int x, unsigned int y)
 {
-    unsigned int pos = 4 * y * WIDTH + x * 4;
+    unsigned int pos; 
+    x %= WIDTH;
+    y %= HEIGHT;
+    pos = 4 * y * WIDTH + x * 4;
     data[pos] = current_color[0];
     data[pos + 1] = current_color[1];
     data[pos + 2] = current_color[2];
@@ -94,6 +97,35 @@ void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char 
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
             img_point(x_pos, y_pos + (7 - c));
+        }
+    }
+}
+
+/* midpoint circle algorithm */
+void img_circ(int x0, int y0, int radius)
+{
+    int x = radius;
+    int y = 0;
+    int err = 0;
+
+    while(x >= y) {
+        img_point(x0 + x, y0 + y);
+        img_point(x0 + y, y0 + x);
+        img_point(x0 - x, y0 + y);
+        img_point(x0 - y, y0 + x);
+        img_point(x0 - x, y0 - y);
+        img_point(x0 - y, y0 - x);
+        img_point(x0 + x, y0 - y);
+        img_point(x0 + y, y0 - x);
+
+        if(err <= 0) {
+            y += 1;
+            err += 2 * y + 1;
+        } 
+
+        if( err > 0 ) {
+            x -= 1;
+            err -= 2 * x + 1;
         }
     }
 }
@@ -253,6 +285,31 @@ static runt_int rproc_bin(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_circ(runt_vm *vm, runt_ptr p)
+{   
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint x0;
+    runt_uint y0;
+    runt_uint r;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    r = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y0 = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x0 = s->f;
+
+    img_circ(x0, y0, r);
+
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -263,4 +320,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_col", 7, rproc_col);
     runt_word_define(vm, "img_row", 7, rproc_row);
     runt_word_define(vm, "img_bin", 7, rproc_bin);
+    runt_word_define(vm, "img_circ", 8, rproc_circ);
 }
