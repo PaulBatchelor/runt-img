@@ -130,6 +130,23 @@ void img_circ(int x0, int y0, int radius)
     }
 }
 
+/* Bresenham line drawing algorith
+ * adopted from the tinyrenderer tutorial by 
+ * Dimitry V. Sokolov 
+ */
+
+void img_line(int x0, int y0, int x1, int y1) 
+{
+    float t;
+    int x, y;
+    char steep = 0;
+    if(abs(x0 - x1) < abs(y0 - y1)) {
+        
+    } else {
+
+    }
+}
+
 static runt_int rproc_set_color_rgb(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
