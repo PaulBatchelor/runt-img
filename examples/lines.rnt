@@ -1,9 +1,27 @@
 "img" load
 
-255 255 255 img_color img_fill
-0 0 0 img_color 0 0 100 100 img_line
+rec 
 
-0 0 30 img_circ
+: feind 89 79 79 img_color ;
+: rock 84 121 128 img_color ;
+: gblue 69 173 168 img_color ;
+: fetch 157 224 173 img_color ;
+: pancakes 229 252 194 img_color ;
+: heel 255 61 128 img_color ;
+: pal rock gblue fetch pancakes ;
+: colorme _pal dup psize rnd inc + ex ;
+: line 
+img_width rnd img_height rnd  
+img_width rnd img_height rnd 
+img_line ;
+: pink_line heel line ;
+: color_line colorme line ;
+stop
+
+feind img_fill
+
+110 _color_line rep
+8 _pink_line rep
 
 "lines.png" img_write
 
