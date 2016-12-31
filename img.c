@@ -403,6 +403,26 @@ static runt_int rproc_line(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_width(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = WIDTH;
+    return RUNT_OK;
+}
+
+static int rproc_height(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = HEIGHT;
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -415,4 +435,6 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_bin", 7, rproc_bin);
     runt_word_define(vm, "img_circ", 8, rproc_circ);
     runt_word_define(vm, "img_line", 8, rproc_line);
+    runt_word_define(vm, "img_height", 10, rproc_height);
+    runt_word_define(vm, "img_width", 9, rproc_width);
 }
