@@ -1,11 +1,12 @@
 # runt-img
 
 Runt-img is a very simple raster graphics library for 
-[runt](www.github.com/paulbatchelor/runt.git)
+[runt](https://www.github.com/paulbatchelor/runt.git)
 designed to create procedurally generated pixel art with a 256x256 resolution.
 It is written in ANSI C. 
 
-Under the hood. runt-img uses [lodepng](www.lodev.org/lodepng)(included with
+Under the hood. runt-img uses 
+[lodepng](https://www.lodev.org/lodepng) (included with
 runt-img) to write PNG files. 
 
 To compile, simply run "make" and "sudo make install". You will need to have
