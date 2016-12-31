@@ -6,7 +6,7 @@ designed to create procedurally generated pixel art with a 256x256 resolution.
 It is written in ANSI C. 
 
 Under the hood. runt-img uses 
-[lodepng](https://www.lodev.org/lodepng) (included with
+[lodepng](http://www.lodev.org/lodepng) (included with
 runt-img) to write PNG files. 
 
 To compile, simply run "make" and "sudo make install". You will need to have
