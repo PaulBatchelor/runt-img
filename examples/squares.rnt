@@ -2,14 +2,19 @@
 "draw" load
 
 rec
-: pal red green blue ;
+: above 63 184 175 img_color ;
+: release 127 199 175 img_color ;
+: baby 255 158 157 img_color ;
+: heel 255 61 127 img_color ;
+: mud 218 216 167 img_color ;
+: pal above release baby heel ;
 : pick_color _pal dup psize rnd + ex ;
 : draw_sq pick_color 16 rnd 16 rnd sq ;
 stop 
 
-white img_fill
+mud img_fill
 
-16 10 _draw_sq rep
+16 32 _draw_sq rep
 
 "squares.png" img_write
 
