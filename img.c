@@ -213,6 +213,29 @@ void img_close(img_image *img) {
     free(img->data);
 }
 
+int img_copy(img_image *img, 
+        unsigned int pos_x, unsigned int pos_y,
+        unsigned int ix, unsigned int iy,
+        unsigned int w, unsigned int h)
+{
+    unsigned int x;
+    unsigned int y;
+    unsigned int pos;
+    if((ix + w) > img->width || (iy + h) > img->height) return 1;
+ 
+    for(y = 0; y < h; y++) {
+        for(x = 0; x < w; x++) {
+            pos = 4 * (iy + y) * img->width + (ix + x) * 4;
+            set_color_rgba(img->data[pos], 
+                img->data[pos + 1], 
+                img->data[pos + 2], 
+                img->data[pos + 3]);
+            img_point(pos_x + x, pos_y + y);
+        }
+    }
+    return 0;
+}
+
 static runt_int rproc_set_color_rgb(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -490,6 +513,54 @@ static int rproc_close(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_copy(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint addr;
+    img_image *img;
+    runt_int pos_x;
+    runt_int pos_y;
+    runt_int ix;
+    runt_int iy;
+    runt_int w;
+    runt_int h;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    addr = s->f;
+    rc = runt_memory_pool_get(vm, addr, (void **)&img);
+    RUNT_ERROR_CHECK(rc);
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    h = s->f;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    w = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    iy = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    ix = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos_y = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    pos_x = s->f;
+
+    if(img_copy(img, pos_x, pos_y, ix, iy, w, h)) return RUNT_NOT_OK;
+
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -506,4 +577,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_width", 9, rproc_width);
     runt_word_define(vm, "img_load", 8, rproc_load);
     runt_word_define(vm, "img_close", 9, rproc_close);
+    runt_word_define(vm, "img_copy", 8, rproc_copy);
 }
