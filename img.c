@@ -18,6 +18,11 @@
 #define clamp(X, A, B) (max(A, min(B, X)))
 #endif
 
+typedef struct {
+    unsigned int width, height;
+    unsigned char *data;
+} img_image;
+
 static unsigned char data[WIDTH * HEIGHT * 4];
 
 static unsigned char current_color[4];
@@ -191,6 +196,21 @@ void img_circ(int x0, int y0, int radius)
             err -= 2 * x + 1;
         }
     }
+}
+
+int img_load(img_image *img, const char *filename) 
+{
+    int error; 
+    error = lodepng_decode32_file(
+           &img->data, 
+           &img->width,
+           &img->height,
+           filename);
+    return error;
+}
+
+void img_close(img_image *img) {
+    free(img->data);
 }
 
 static runt_int rproc_set_color_rgb(runt_vm *vm, runt_ptr p)
@@ -423,6 +443,53 @@ static int rproc_height(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_load(runt_vm *vm, runt_ptr p)
+{
+    runt_stacklet *s;
+    runt_int rc;
+    const char *filename;
+    img_image *img;
+    runt_uint addr;
+
+    addr = runt_malloc(vm, sizeof(img_image), (void **)&img);
+
+    if(addr == 0) return RUNT_NOT_OK;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    filename = runt_to_string(s->p);
+
+    rc = img_load(img, filename);
+
+    if(rc) {
+        runt_print(vm, "Error: %u: %s\n", rc, lodepng_error_text(rc));
+        return RUNT_NOT_OK;
+    }
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = addr;
+
+    return RUNT_OK;
+}
+
+static int rproc_close(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    img_image *img;
+    runt_uint addr;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    addr = s->f;
+
+    rc = runt_memory_pool_get(vm, addr, (void **)&img);
+    RUNT_ERROR_CHECK(rc);
+    img_close(img);
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -437,4 +504,6 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_line", 8, rproc_line);
     runt_word_define(vm, "img_height", 10, rproc_height);
     runt_word_define(vm, "img_width", 9, rproc_width);
+    runt_word_define(vm, "img_load", 8, rproc_load);
+    runt_word_define(vm, "img_close", 9, rproc_close);
 }
