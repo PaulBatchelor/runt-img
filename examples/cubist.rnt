@@ -1,0 +1,25 @@
+"img" load
+
+rec
+: +32 32 + ;
+: show dup p +32 ;
+: square 
+224 rnd 224 rnd
+32 32 
+0 peak img_copy ;
+
+: square1 -1 peak -3 peak square +32 ;
+
+: squareline 0 8 _square1 rep drop +32 ;
+: cubist 0 8 _squareline rep ;
+
+stop
+
+"lines.png" img_load 
+
+cubist
+
+"out.png" img_write
+
+0 peak img_close
+
