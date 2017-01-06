@@ -1,0 +1,27 @@
+"img" load
+[
+: src 0 peak ;
+: glyph_size 16 16 ;
+: next_char glyph_size drop + swap ;
+: copy_xy dup rot dup rot ;
+: write_glyph glyph_size src img_glyph next_char ;
+: P copy_xy 0 0 write_glyph ;
+: lime 0 255 0 img_color ;
+: cyan 0 255 255 img_color ;
+: mag 255 0 255 img_color ;
+: grey 128 128 128 img_color ;
+: red 255 0 0 img_color ;
+]
+
+grey img_fill
+
+"p.png" img_load
+0 0 
+cyan P
+lime P
+mag P 
+red P
+n 1 - drops
+img_close
+
+"out.png" img_write
