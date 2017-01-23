@@ -1,0 +1,23 @@
+"img" load
+"pico8" load
+
+[ 
+: swab 8 * swap 8 * swap 8 8 img_rect ; 
+: xy 32 img_xy ;
+: colors
+black dark-blue dark-purple dark-green brown dark-gray light-gray white red 
+orange yellow green blue indigo pink peach 
+;
+: pix dup _colors dup psize rnd inc + ex xy swab inc ;
+: speck 32 dup * rnd xy swab ;
+: specks _speck rep ;
+]
+
+black img_fill 
+
+0 32 32 * _pix rep
+
+blue 256 specks 
+
+"blocks.png" img_write
+
