@@ -630,6 +630,41 @@ static int rproc_copy(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static int rproc_xy(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint w;
+    runt_uint x;
+    runt_uint y;
+    runt_uint val;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    w = s->f;
+   
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    val = s->f;
+    if(w <= 0) {
+        runt_print(vm, "xy: width cannot be zero\n");
+        return RUNT_NOT_OK; 
+    }
+   
+    y = val / w;
+    x = val % w;
+
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = x;
+    
+    rc = runt_ppush(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    s->f = y;
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -648,4 +683,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_close", 9, rproc_close);
     runt_word_define(vm, "img_copy", 8, rproc_copy);
     runt_word_define(vm, "img_glyph", 9, rproc_glyph);
+    runt_word_define(vm, "img_xy", 6, rproc_xy);
 }
