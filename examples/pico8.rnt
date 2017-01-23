@@ -1,0 +1,16 @@
+: black 0 0 0 img_color ;
+: dark-blue 29 43 83 img_color ;
+: dark-purple 126 37 83 img_color ;
+: dark-green 0 135 81 img_color ;
+: brown 171 82 54 img_color ;
+: dark-gray 95 87 79 img_color ;
+: light-gray 194 195 199 img_color ;
+: white 255 241 232 img_color ;
+: red 255 0 77 img_color ;
+: orange 255 163 0 img_color ;
+: yellow 255 236 39 img_color ;
+: green 0 228 54 img_color ;
+: blue 41 173 255 img_color ;
+: indigo 131 118 156 img_color ;
+: pink 255 119 168 img_color ;
+: peach 255 204 170 img_color ;

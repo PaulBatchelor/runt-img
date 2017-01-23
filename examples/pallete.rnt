@@ -1,0 +1,28 @@
+"img" load
+"pico8" load
+
+[ 
+: swab 32 * swap 32 * swap 32 32 img_rect ; 
+: xy 8 img_xy ;
+]
+
+black img_fill
+dark-blue 0 xy swab
+dark-purple 1 xy swab
+dark-green 2 xy swab
+brown 3 xy swab
+dark-gray 4 xy swab
+light-gray 5 xy swab
+white 6 xy swab
+red 7 xy swab
+orange 8 xy swab
+yellow 9 xy swab
+green 10 xy swab
+blue 11 xy swab
+indigo 12 xy swab
+pink 13 xy swab
+peach 14 xy swab
+black 15 xy swab
+
+"pico.png" img_write
+
