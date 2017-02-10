@@ -1,6 +1,3 @@
-"img" load
-"pico8" load
-
 [ 
 : swab 32 * swap 32 * swap 32 32 img_rect ; 
 : xy 8 img_xy ;
@@ -24,5 +21,4 @@ pink 13 xy swab
 peach 14 xy swab
 black 15 xy swab
 
-"pico.png" img_write
 

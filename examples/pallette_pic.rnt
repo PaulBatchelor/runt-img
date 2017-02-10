@@ -1,0 +1,5 @@
+"img" load
+"pico8" load
+"pallette" load
+
+"pallette.png" img_write
