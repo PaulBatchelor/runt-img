@@ -6,7 +6,7 @@ lodepng.o: lodepng.c
 	gcc $< $(CFLAGS) -c -o $@
 
 img.so: img.c lodepng.o
-	gcc $(CFLAGS) -shared img.c -o $@ lodepng.o -lrunt
+	gcc $(CFLAGS) -shared img.c -o $@ lodepng.o -lrunt -lGL -lGLU -lglut
 
 clean:
 	rm -rf *.o img.so

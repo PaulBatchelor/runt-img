@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <runt.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 #include "lodepng.h"
 
 #define WIDTH 256
@@ -665,6 +668,47 @@ static int rproc_xy(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static void displayFunc( )
+{
+    /* local state */
+
+    /* clear the color and depth buffers */
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    
+    /* line width */
+    glLineWidth( 1.0 );
+    
+    /* start primitive */
+    glColor3f(0.1607, 0.6784, 1);
+
+    glBegin(GL_TRIANGLE_STRIP);
+    glColor3f(0.1607, 0.6784, 1);
+    glVertex2f(-1.0f, -1.0f);
+    glColor3f(1, 1, 1);
+    glVertex2f(-1.0f, 1.0f);
+    glColor3f(0.1607, 0.6784, 1);
+    glVertex2f(1.0f, -1.0f);
+    glColor3f(1, 1, 1);
+    glVertex2f(1.0f, 1.0f);
+    glEnd();
+
+    /* flush! */
+    glFlush( );
+    /* swap the double buffer */
+    glutSwapBuffers( );
+}
+
+static runt_int rproc_gl(runt_vm *vm, runt_ptr p)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f (1.0, 1.0, 1.0);
+    glPixelZoom(1, -1);
+    glRasterPos2i (0, 0);
+    glDrawPixels(256, 256, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glFlush();
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
@@ -684,4 +728,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_copy", 8, rproc_copy);
     runt_word_define(vm, "img_glyph", 9, rproc_glyph);
     runt_word_define(vm, "img_xy", 6, rproc_xy);
+    runt_word_define(vm, "img_gl", 6, rproc_gl);
 }
