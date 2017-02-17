@@ -30,6 +30,11 @@ static unsigned char data[WIDTH * HEIGHT * 4];
 
 static unsigned char current_color[4];
 
+struct {
+    int width;
+    int height;
+} G;
+
 void set_color_rgba(
         unsigned char r, 
         unsigned char g, 
@@ -54,9 +59,9 @@ void img_fill()
 {
     int x, y;
     int pos;
-    for(y = 0; y < HEIGHT; y++)  {
-        for(x = 0; x < WIDTH; x++) {
-            pos = y * WIDTH * 4 + x * 4;
+    for(y = 0; y < G.height ; y++)  {
+        for(x = 0; x < G.width; x++) {
+            pos = y * G.width * 4 + x * 4;
             data[pos] = current_color[0];
             data[pos + 1] = current_color[1];
             data[pos + 2] = current_color[2];
@@ -68,9 +73,9 @@ void img_fill()
 void img_point(unsigned int x, unsigned int y)
 {
     unsigned int pos; 
-    x = clamp(x, 0, WIDTH);
-    y = clamp(y, 0, HEIGHT);
-    pos = 4 * y * WIDTH + x * 4;
+    x = clamp(x, 0, G.width);
+    y = clamp(y, 0, G.height);
+    pos = 4 * y * G.width + x * 4;
     data[pos] = current_color[0];
     data[pos + 1] = current_color[1];
     data[pos + 2] = current_color[2];
@@ -95,7 +100,7 @@ void img_rect(unsigned int x_pos,
 
 void img_write(const char *filename)
 {
-    lodepng_encode32_file(filename, data, WIDTH, HEIGHT);
+    lodepng_encode32_file(filename, data, G.width, G.height);
 }
 
 void img_row(unsigned char x, unsigned char y, unsigned char col, unsigned char s)
@@ -188,6 +193,36 @@ void img_circ(int x0, int y0, int radius)
         img_line(x0 - y, y0 + x, x0 + y, y0 + x);
         img_line(x0 + x, y0 - y, x0 - x, y0 - y);
         img_line(x0 + y, y0 - x, x0 - y, y0 - x);
+        
+        if(err <= 0) {
+            y += 1;
+            err += 2 * y + 1;
+        } 
+
+        if( err > 0 ) {
+            x -= 1;
+            err -= 2 * x + 1;
+        }
+    }
+}
+
+/* midpoint circle algorithm */
+void img_ocirc(int x0, int y0, int radius)
+{
+    int x = radius;
+    int y = 0;
+    int err = 0;
+
+    while(x >= y) {
+
+        img_point(x0 - x, y0 + y);
+        img_point(x0 + x, y0 + y);
+        img_point(x0 - y, y0 + x); 
+        img_point(x0 + y, y0 + x);
+        img_point(x0 + x, y0 - y); 
+        img_point(x0 - x, y0 - y);
+        img_point(x0 + y, y0 - x); 
+        img_point(x0 - y, y0 - x);
         
         if(err <= 0) {
             y += 1;
@@ -440,6 +475,31 @@ static runt_int rproc_circ(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_ocirc(runt_vm *vm, runt_ptr p)
+{   
+    runt_stacklet *s;
+    runt_int rc;
+    runt_uint x0;
+    runt_uint y0;
+    runt_uint r;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    r = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y0 = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x0 = s->f;
+
+    img_ocirc(x0, y0, r);
+
+    return RUNT_OK;
+}
+
 static runt_int rproc_line(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -476,7 +536,7 @@ static int rproc_width(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    s->f = WIDTH;
+    s->f = G.width;
     return RUNT_OK;
 }
 
@@ -486,7 +546,7 @@ static int rproc_height(runt_vm *vm, runt_ptr p)
     runt_stacklet *s;
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    s->f = HEIGHT;
+    s->f = G.height;
     return RUNT_OK;
 }
 
@@ -668,36 +728,6 @@ static int rproc_xy(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-static void displayFunc( )
-{
-    /* local state */
-
-    /* clear the color and depth buffers */
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    
-    /* line width */
-    glLineWidth( 1.0 );
-    
-    /* start primitive */
-    glColor3f(0.1607, 0.6784, 1);
-
-    glBegin(GL_TRIANGLE_STRIP);
-    glColor3f(0.1607, 0.6784, 1);
-    glVertex2f(-1.0f, -1.0f);
-    glColor3f(1, 1, 1);
-    glVertex2f(-1.0f, 1.0f);
-    glColor3f(0.1607, 0.6784, 1);
-    glVertex2f(1.0f, -1.0f);
-    glColor3f(1, 1, 1);
-    glVertex2f(1.0f, 1.0f);
-    glEnd();
-
-    /* flush! */
-    glFlush( );
-    /* swap the double buffer */
-    glutSwapBuffers( );
-}
-
 static runt_int rproc_gl(runt_vm *vm, runt_ptr p)
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -709,8 +739,26 @@ static runt_int rproc_gl(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_setsize(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    G.height = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    G.width= s->f;
+
+    return RUNT_OK;
+}
+
 void runt_plugin_init(runt_vm *vm)
 {
+    G.width = WIDTH;
+    G.height = HEIGHT;
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
     runt_word_define(vm, "img_fill", 8, rproc_fill);
     runt_word_define(vm, "img_write", 9, rproc_write);
@@ -720,6 +768,7 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_row", 7, rproc_row);
     runt_word_define(vm, "img_bin", 7, rproc_bin);
     runt_word_define(vm, "img_circ", 8, rproc_circ);
+    runt_word_define(vm, "img_ocirc", 9, rproc_ocirc);
     runt_word_define(vm, "img_line", 8, rproc_line);
     runt_word_define(vm, "img_height", 10, rproc_height);
     runt_word_define(vm, "img_width", 9, rproc_width);
@@ -729,4 +778,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_glyph", 9, rproc_glyph);
     runt_word_define(vm, "img_xy", 6, rproc_xy);
     runt_word_define(vm, "img_gl", 6, rproc_gl);
+    runt_word_define(vm, "img_setsize", 11, rproc_setsize);
 }
