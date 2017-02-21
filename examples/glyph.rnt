@@ -1,4 +1,3 @@
-"img" load
 [
 : src 0 peak ;
 : glyph_size 16 16 ;

@@ -1,5 +1,3 @@
-"img" load
-
 rec
 : +32 32 + ;
 : show dup p +32 ;

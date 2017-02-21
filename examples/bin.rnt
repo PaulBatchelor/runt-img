@@ -1,5 +1,3 @@
-"img" load
-
 rec 
 
 : peach 252 222 204 img_color ;
