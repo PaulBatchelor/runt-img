@@ -755,7 +755,7 @@ static runt_int rproc_setsize(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
-void runt_plugin_init(runt_vm *vm)
+runt_int runt_load_img(runt_vm *vm)
 {
     G.width = WIDTH;
     G.height = HEIGHT;
@@ -779,4 +779,5 @@ void runt_plugin_init(runt_vm *vm)
     runt_word_define(vm, "img_xy", 6, rproc_xy);
     runt_word_define(vm, "img_gl", 6, rproc_gl);
     runt_word_define(vm, "img_setsize", 11, rproc_setsize);
+    return RUNT_OK;
 }

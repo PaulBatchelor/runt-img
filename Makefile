@@ -1,16 +1,18 @@
-default: img.so
+default: librunt_img.a runt_img
 
 CFLAGS = -ansi -fPIC -pedantic -Wall
 
-lodepng.o: lodepng.c
-	gcc $< $(CFLAGS) -c -o $@
+OBJ=img.o lodepng.o
 
-img.so: img.c lodepng.o
-	gcc $(CFLAGS) -shared img.c -o $@ lodepng.o -lrunt -lGL -lGLU -lglut
+%.o: %.c
+	$(CC) $< $(CFLAGS) -c -o $@
+
+librunt_img.a: $(OBJ)
+	ar rcs $@ $(OBJ)
+
+runt_img: parse.c librunt_img.a
+	$(CC) parse.c -o $@ -lrunt librunt_img.a  -ldl -lGL
 
 clean:
-	rm -rf *.o img.so
+	rm -rf $(OBJ) librunt_img.a runt_img
 
-install: img.so
-	mkdir -p /usr/local/share/runt
-	install img.so /usr/local/share/runt/
