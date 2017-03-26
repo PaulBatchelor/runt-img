@@ -622,7 +622,6 @@ static int rproc_glyph(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
     addr = s->f;
     rc = runt_memory_pool_get(vm, addr, (void **)&img);
-    runt_print(vm, "address is %d\n", addr);
     RUNT_ERROR_CHECK(rc);
 
     rc = runt_ppop(vm, &s);
