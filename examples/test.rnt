@@ -1,4 +1,4 @@
-stop "img" load rec
+] "img" load [
 : red 255 0 0 img_color ;
 : green 0 255 0 img_color ;
 : blue 0 0 255 img_color ;

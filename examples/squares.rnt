@@ -1,6 +1,6 @@
 "draw" load
 
-rec
+[
 : above 63 184 175 img_color ;
 : release 127 199 175 img_color ;
 : baby 255 158 157 img_color ;
@@ -9,7 +9,7 @@ rec
 : pal above release baby heel ;
 : pick_color _pal dup psize rnd + ex ;
 : draw_sq pick_color 16 rnd 16 rnd sq ;
-stop 
+]
 
 mud img_fill
 

@@ -1,5 +1,4 @@
-rec 
-
+[
 : feind 89 79 79 img_color ;
 : rock 84 121 128 img_color ;
 : gblue 69 173 168 img_color ;
@@ -14,7 +13,7 @@ img_width rnd img_height rnd
 img_line ;
 : pink_line heel line ;
 : color_line colorme line ;
-stop
+]
 
 feind img_fill
 

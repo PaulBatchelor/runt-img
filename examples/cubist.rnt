@@ -1,4 +1,4 @@
-rec
+[
 : +32 32 + ;
 : show dup p +32 ;
 : square 
@@ -11,7 +11,7 @@ rec
 : squareline 0 8 _square1 rep drop +32 ;
 : cubist 0 8 _squareline rep ;
 
-stop
+]
 
 "lines.png" img_load 
 

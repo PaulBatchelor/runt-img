@@ -9,14 +9,19 @@ Under the hood. runt-img uses
 [lodepng](http://www.lodev.org/lodepng) (included with
 runt-img) to write PNG files. 
 
-To compile, simply run "make" and "sudo make install". You will need to have
-Runt installed first (it *is* a library for the runt language). Be sure to set
-RUNT_PLUGIN_PATH to "/usr/local/include/runt". 
+## Compilation
 
-Some small examples can be found in the "examples" folder. To run an example,
-run:
+You will need to have [runt](installed)
 
-    irunt -b lines.rnt
+To compile, simply run:
 
-Which will write a png called "lines.png". 
+    make
+
+This will make the library *librunt_img.a*, and a runt interpretor called
+*rntimg*. The interpretor can be used to try out some of the examples. For 
+instance, to run the lines example, run:
+
+    ./rntimg examples/lines.rnt
+
+Which will write a file lines.png
 

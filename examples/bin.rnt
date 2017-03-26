@@ -1,5 +1,4 @@
-rec 
-
+[
 : peach 252 222 204 img_color ;
 : pink 238 147 170 img_color ;
 : blemish 148 83 96 img_color ;
@@ -59,7 +58,7 @@ unbias
 
 : faces colorpick _face dup psize rnd inc + ex ;
 
-stop
+]
 
 peach img_fill
 
