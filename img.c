@@ -282,7 +282,10 @@ int img_glyph(img_image *img,
     unsigned int x;
     unsigned int y;
     unsigned int pos;
-    if((ix + w) > img->width || (iy + h) > img->height) return 1;
+    if((ix + w) > img->width || (iy + h) > img->height) {
+        fprintf(stderr, "Error: %dx%d\n", img->width, img->height);
+        return 1;
+    }
  
     for(y = 0; y < h; y++) {
         for(x = 0; x < w; x++) {
@@ -558,13 +561,18 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     img_image *img;
     runt_uint addr;
 
-    addr = runt_malloc(vm, sizeof(img_image), (void **)&img);
-
-    if(addr == 0) return RUNT_NOT_OK;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     filename = runt_to_string(s->p);
+   
+    /* free the string from the incremental memory pool */
+    runt_mark_free(vm);
+    addr = runt_malloc(vm, sizeof(img_image), (void **)&img);
+
+    if(addr == 0) return RUNT_NOT_OK;
+    /* save memory address */
+    runt_mark_set(vm);
 
     rc = img_load(img, filename);
 
@@ -614,6 +622,7 @@ static int rproc_glyph(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
     addr = s->f;
     rc = runt_memory_pool_get(vm, addr, (void **)&img);
+    runt_print(vm, "address is %d\n", addr);
     RUNT_ERROR_CHECK(rc);
 
     rc = runt_ppop(vm, &s);
