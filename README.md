@@ -25,3 +25,9 @@ instance, to run the lines example, run:
 
 Which will write a file lines.png
 
+To install the library and utility, run:
+
+    make install
+
+Note that sudo does *not* need to be used, as the files are copied to
+~/.runt.
