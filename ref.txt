@@ -1,0 +1,93 @@
+word: img_color
+args: r, g, b
+desc: sets the current color palette as 0-255 RGB values
+
+word: img_fill
+args: n/a
+desc: fills the image
+
+word: img_write
+args: filename (s)
+desc: writes output to file
+
+word: img_point
+args: x, y
+desc: writes single pixel
+
+word: img_rect
+args: x, y, w, h
+desc: draws rectangle at position (x, y) of dimensions (w, h)
+
+word: img_col
+args: x, y, col, state
+desc: draws an 8-pixel column based on the binary value of *state*. The
+position is specified in 8-pixel blocks. (32x32 squares). The *col* parameter
+specified tells which column in the block to write to.
+
+word: img_row
+args: x, y, row, state
+desc: draws an 8-pixel row based on the binary value of *state*. Similar
+to img_col
+
+word: img_bin
+args: b1, b2, b3, b4, b5, b6, b7, b8
+desc: converts a set of 8 bits (0 or 1) to a binary number. Used with 
+img_row or img_col
+
+word: img_circ
+args: center_x, center_y, radius
+desc: draws a filled circle.
+
+word: img_ocirc
+args: center_x, center_y, radius
+desc: draws an outlined circle
+
+word: img_line
+args: x0, y0, x1, y1
+desc: draws a straight line
+
+word: img_line
+args: x0, y0, x1, y1
+desc: draws a straight line
+
+word: img_heigt
+args: n/a
+desc: returns image height
+
+word: img_width
+args: n/a
+desc: returns image width
+
+word: img_load
+args: filename (s)
+desc: loads a PNG file, and returns an address. Save this address somehow,
+and be sure to call img_close or else you'll get memory leaks
+
+word: img_close
+args: addr (i)
+desc: closes a loaded PNG file called by **img_load**, and frees memory.
+
+word: img_copy
+args: x, y, ix, iy, w, h, addr
+desc: copys a section (*ix*, *iy*) of a loaded image *addr*  to a position in 
+the image (*x*, *y*). The size of the chunk is determined by the dimensions
+*w* and *h*. 
+
+word: img_glyph
+args: x, y, ix, iy, w, h, addr
+desc: similar to img_copy, except that it will draw using the current
+paint color set by *img_color*. This expects images to be black and white.
+A black pixel will paint, a white pixel will be ignored.
+
+word: img_xy
+args: val, width
+desc: Takes a value, and returns it to an x y coordinate. For instance, 
+"9 8 img_xy" returns the xy coordinates (1,1). Useful for grid-based loops.
+
+word: img_gl
+args: n/a
+desc: a openGL draw function. Designed to be used with other libraries 
+
+word: img_setsize
+args: w, h
+desc: sets the image dimensions. Should be no larger than 256x256.

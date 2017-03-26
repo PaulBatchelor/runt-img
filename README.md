@@ -18,4 +18,5 @@ run:
 
     irunt -b lines.rnt
 
-Whhich will write a png called "lines.png". 
+Which will write a png called "lines.png". 
+
