@@ -16,8 +16,10 @@ rntimg: parse.c librunt_img.a
 install: librunt_img.a
 	mkdir -p ~/.runt/lib
 	mkdir -p ~/.runt/bin
+	mkdir -p ~/.runt/include
 	cp librunt_img.a ~/.runt/lib
 	cp rntimg ~/.runt/bin/
+	cp img.h ~/.runt/include/
 
 clean:
 	rm -rf $(OBJ) librunt_img.a rntimg

@@ -5,6 +5,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include "lodepng.h"
+#include "img.h"
 
 #define WIDTH 256
 #define HEIGHT 256
