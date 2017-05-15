@@ -4,6 +4,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <ctype.h>
 #include "lodepng.h"
 #include "img.h"
 
@@ -297,6 +298,13 @@ int img_glyph(img_image *img,
         }
     }
     return 0;
+}
+
+void img_get(int x, int y, unsigned char **col)
+{
+    int pos;
+    pos = y * G.width * 4 + x * 4;
+    *col = &data[pos];
 }
 
 static runt_int rproc_set_color_rgb(runt_vm *vm, runt_ptr p)
@@ -764,6 +772,86 @@ static runt_int rproc_setsize(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_blk(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_float x, y;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x = s->f;
+
+    img_rect(x * 8, y * 8, 8, 8);
+
+    return RUNT_OK;
+}
+
+static runt_int rproc_writec(runt_vm *vm, runt_ptr p)
+{
+    int x, y;
+    int pos;
+    unsigned char *d;
+    const char *filename;
+    const char *varname;
+    char macro[25];
+    int len;
+    FILE *fp;
+    int counter;
+    runt_stacklet *s;
+    runt_uint rc;
+
+    counter = 0;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    filename = runt_to_string(s->p);
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    varname = runt_to_string(s->p);
+
+    fp = fopen(filename, "w");
+    if(fp == NULL) {
+        runt_print(vm, "img_writec: could not open file %s\n", filename);
+    }
+
+    len = strlen(varname);
+
+    for(x = 0; x < 25; x++) {
+        if(x < len) {
+            macro[x] = toupper(varname[x]);
+        } else {
+            macro[x] = 0;
+        }
+    }
+    fprintf(fp, "#ifndef IMG_%s\n#define IMG_%s\n", macro, macro);
+    fprintf(fp, "const unsigned char *%s[] = {\n", varname);
+    d = data;
+    for(y = 0; y < G.height; y++) {
+        for(x = 0; x < G.width; x++) {
+            pos = y * G.width * 4 + x * 4;
+            fprintf(fp, "0x%02x, 0x%02x, 0x%02x, ",
+                d[pos],
+                d[pos + 1],
+                d[pos + 2]);
+            counter++;
+            if(counter % 4 == 0) {
+                fprintf(fp, "\n");
+            }
+        }
+    }
+
+    fprintf(fp,"};\n");
+    fprintf(fp,"#endif\n");
+    fclose(fp);
+    return RUNT_OK;
+}
+
 runt_int runt_load_img(runt_vm *vm)
 {
     G.width = WIDTH;
@@ -788,5 +876,7 @@ runt_int runt_load_img(runt_vm *vm)
     runt_word_define(vm, "img_xy", 6, rproc_xy);
     runt_word_define(vm, "img_gl", 6, rproc_gl);
     runt_word_define(vm, "img_setsize", 11, rproc_setsize);
+    runt_word_define(vm, "img_blk", 7, rproc_blk);
+    runt_word_define(vm, "img_writec", 10, rproc_writec);
     return RUNT_OK;
 }

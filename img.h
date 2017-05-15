@@ -21,4 +21,5 @@ void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char 
 void img_line(int x0, int y0, int x1, int y1);
 void img_circ(int x0, int y0, int radius);
 void img_ocirc(int x0, int y0, int radius);
+void img_get(int x, int y, unsigned char **col);
 #endif

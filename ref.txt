@@ -91,3 +91,7 @@ desc: a openGL draw function. Designed to be used with other libraries
 word: img_setsize
 args: w, h
 desc: sets the image dimensions. Should be no larger than 256x256.
+
+word: img_blk
+args: x, y
+desc: fills a square on a grid dividing pixel into 8x8 chunks
