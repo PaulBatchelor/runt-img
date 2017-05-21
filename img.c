@@ -832,7 +832,7 @@ static runt_int rproc_writec(runt_vm *vm, runt_ptr p)
     fprintf(fp, "#ifndef IMG_%s\n#define IMG_%s\n", macro, macro);
     fprintf(fp, "#define IMG_%s_WIDTH %d\n", macro, G.width);
     fprintf(fp, "#define IMG_%s_HEIGHT %d\n", macro, G.height);
-    fprintf(fp, "const unsigned char *%s[] = {\n", varname);
+    fprintf(fp, "const unsigned char %s[] = {\n", varname);
     d = data;
     for(y = 0; y < G.height; y++) {
         for(x = 0; x < G.width; x++) {
