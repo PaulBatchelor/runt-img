@@ -35,6 +35,7 @@ static unsigned char current_color[4];
 struct {
     int width;
     int height;
+    void (*point)(unsigned int, unsigned int);
 } G;
 
 void set_color_rgba(
@@ -94,7 +95,7 @@ void img_rect(unsigned int x_pos,
 
     for(y = 0; y < height; y++) {
         for(x = 0; x < width; x++) {
-            img_point(x + x_pos, y + y_pos);
+            G.point(x + x_pos, y + y_pos);
         }
     }
 
@@ -112,7 +113,7 @@ void img_row(unsigned char x, unsigned char y, unsigned char col, unsigned char 
     unsigned int y_pos = y * 8 + col;
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
-            img_point(x_pos + (7 - c), y_pos);
+            G.point(x_pos + (7 - c), y_pos);
         }
     }
 }
@@ -124,7 +125,7 @@ void img_col(unsigned char x, unsigned char y, unsigned char row, unsigned char 
     unsigned int y_pos = y * 8;
     for(c = 0; c < 8; c++) {
         if(s & (1 << c)) {
-            img_point(x_pos, y_pos + (7 - c));
+            G.point(x_pos, y_pos + (7 - c));
         }
     }
 }
@@ -169,9 +170,9 @@ void img_line(int x0, int y0, int x1, int y1)
 
     for(x = x0; x < x1; x++) {
         if(steep) {
-            img_point(y, x);
+            G.point(y, x);
         } else {
-            img_point(x, y);
+            G.point(x, y);
         }
         error2 += derror2;
         if(error2 > dx) {
@@ -217,14 +218,14 @@ void img_ocirc(int x0, int y0, int radius)
 
     while(x >= y) {
 
-        img_point(x0 - x, y0 + y);
-        img_point(x0 + x, y0 + y);
-        img_point(x0 - y, y0 + x); 
-        img_point(x0 + y, y0 + x);
-        img_point(x0 + x, y0 - y); 
-        img_point(x0 - x, y0 - y);
-        img_point(x0 + y, y0 - x); 
-        img_point(x0 - y, y0 - x);
+        G.point(x0 - x, y0 + y);
+        G.point(x0 + x, y0 + y);
+        G.point(x0 - y, y0 + x); 
+        G.point(x0 + y, y0 + x);
+        G.point(x0 + x, y0 - y); 
+        G.point(x0 - x, y0 - y);
+        G.point(x0 + y, y0 - x); 
+        G.point(x0 - y, y0 - x);
         
         if(err <= 0) {
             y += 1;
@@ -270,7 +271,7 @@ int img_copy(img_image *img,
                 img->data[pos + 1], 
                 img->data[pos + 2], 
                 img->data[pos + 3]);
-            img_point(pos_x + x, pos_y + y);
+            G.point(pos_x + x, pos_y + y);
         }
     }
     return 0;
@@ -293,7 +294,7 @@ int img_glyph(img_image *img,
         for(x = 0; x < w; x++) {
             pos = 4 * (iy + y) * img->width + (ix + x) * 4;
             if(img->data[pos] != 255) {
-                img_point(pos_x + x, pos_y + y);
+                G.point(pos_x + x, pos_y + y);
             }
         }
     }
@@ -345,7 +346,7 @@ static runt_int rproc_point(runt_vm *vm, runt_ptr p)
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     x = s->f;
-    img_point(x, y);
+    G.point(x, y);
     return RUNT_OK;
 }
 
@@ -858,6 +859,7 @@ runt_int runt_load_img(runt_vm *vm)
 {
     G.width = WIDTH;
     G.height = HEIGHT;
+    G.point = img_point;
     runt_word_define(vm, "img_color", 9, rproc_set_color_rgb);
     runt_word_define(vm, "img_fill", 8, rproc_fill);
     runt_word_define(vm, "img_write", 9, rproc_write);
