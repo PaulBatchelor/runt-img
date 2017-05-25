@@ -50,6 +50,16 @@ void set_color_rgba(
     current_color[3] = a;
 }
 
+unsigned char *img_get_current_color()
+{
+    return current_color;
+}
+
+void img_set_point_function(void (*f)(unsigned int, unsigned int))
+{
+    G.point = f;
+}
+
 void set_color_rgb(
         unsigned char r, 
         unsigned char g, 
