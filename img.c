@@ -579,21 +579,14 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
     runt_int rc;
     const char *filename;
     img_image *img;
-    runt_uint addr;
 
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     filename = runt_to_string(s->p);
    
-    /* free the string from the incremental memory pool */
-    runt_mark_free(vm);
-    addr = runt_malloc(vm, sizeof(img_image), (void **)&img);
 
-    if(addr == 0) return RUNT_NOT_OK;
-    /* save memory address */
-    runt_mark_set(vm);
-
+    img = malloc(sizeof(img_image));
     rc = img_load(img, filename);
 
     if(rc) {
@@ -603,7 +596,7 @@ static int rproc_load(runt_vm *vm, runt_ptr p)
 
     rc = runt_ppush(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    s->f = addr;
+    s->p = runt_mk_cptr(vm, img);
 
     return RUNT_OK;
 }
@@ -613,15 +606,12 @@ static int rproc_close(runt_vm *vm, runt_ptr p)
     runt_int rc;
     runt_stacklet *s;
     img_image *img;
-    runt_uint addr;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    addr = s->f;
-
-    rc = runt_memory_pool_get(vm, addr, (void **)&img);
-    RUNT_ERROR_CHECK(rc);
+    img = runt_to_cptr(s->p);
     img_close(img);
+    free(img);
     return RUNT_OK;
 }
 
@@ -629,7 +619,6 @@ static int rproc_glyph(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
     runt_int rc;
-    runt_uint addr;
     img_image *img;
     runt_int pos_x;
     runt_int pos_y;
@@ -640,9 +629,7 @@ static int rproc_glyph(runt_vm *vm, runt_ptr p)
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    addr = s->f;
-    rc = runt_memory_pool_get(vm, addr, (void **)&img);
-    RUNT_ERROR_CHECK(rc);
+    img = runt_to_cptr(s->p);
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
@@ -677,7 +664,6 @@ static int rproc_copy(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
     runt_int rc;
-    runt_uint addr;
     img_image *img;
     runt_int pos_x;
     runt_int pos_y;
@@ -688,9 +674,7 @@ static int rproc_copy(runt_vm *vm, runt_ptr p)
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    addr = s->f;
-    rc = runt_memory_pool_get(vm, addr, (void **)&img);
-    RUNT_ERROR_CHECK(rc);
+    img = runt_to_cptr(s->p);
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
@@ -734,7 +718,6 @@ static int rproc_xy(runt_vm *vm, runt_ptr p)
     RUNT_ERROR_CHECK(rc);
     w = s->f;
    
-
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
     val = s->f;

@@ -1,10 +1,11 @@
 [
+: img ptr ;
 : +32 32 + ;
 : show dup p +32 ;
 : square 
 224 rnd 224 rnd
 32 32 
-0 peak img_copy ;
+img img_copy ;
 
 : square1 -1 peak -3 peak square +32 ;
 
@@ -13,11 +14,11 @@
 
 ]
 
-"lines.png" img_load 
+"lines.png" img_load _img setptr
 
 cubist
 
 "out.png" img_write
 
-0 peak img_close
+img img_close
 
