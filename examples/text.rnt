@@ -1,0 +1,14 @@
+[
+: font ptr ;
+]
+
+"img/font.png" img_load _font setptr
+
+255 255 255 img_color img_fill
+0 0 128 img_color
+
+"I am sitting in a room" 0 0 8 8 1 font img_text
+
+"text.png" img_write
+
+font img_close

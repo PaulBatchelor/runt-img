@@ -318,6 +318,52 @@ void img_get(int x, int y, unsigned char **col)
     *col = &data[pos];
 }
 
+/* TODO: implement scale */
+
+void img_text(img_image *img, 
+        unsigned int x, unsigned int y, 
+        unsigned int w, unsigned int h, 
+        unsigned int scale,
+        const char *str)
+{
+    unsigned int i;
+    unsigned int len;
+    unsigned char pos;
+    unsigned int pos_x;
+    unsigned int pos_y;
+    unsigned int iw;
+    unsigned int ix;
+    unsigned int iy;
+
+    len = strlen(str);
+
+    pos_x = x;
+    pos_y = y;
+
+    iw = img->width / w;
+
+    for(i = 0; i < len; i++) {
+        pos = str[i];
+        if(pos >= 'a' && pos <= 'z') {
+            pos -= 'a';
+            pos += 26;
+        } else if(pos >= 'A' && pos <= 'Z') { 
+            pos -= 'A';
+        } else if(pos == ' ') {
+            pos_x += w;
+            continue;
+        }
+        ix = pos % iw;
+        iy = pos / iw;
+        img_glyph(img, pos_x, pos_y, ix * w, iy * h, w, h);
+        pos_x += w;
+    }
+}
+
+
+
+/* BEGIN RUNT PROCEDURES */
+
 static runt_int rproc_set_color_rgb(runt_vm *vm, runt_ptr p)
 {
     runt_stacklet *s;
@@ -848,6 +894,51 @@ static runt_int rproc_writec(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_text(runt_vm *vm, runt_ptr p)
+{
+    runt_int rc;
+    runt_stacklet *s;
+    runt_uint width;
+    runt_uint height;
+    runt_uint x;
+    runt_uint y;
+    runt_uint scale;
+    img_image *img;
+    const char *string;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    img = runt_to_cptr(s->p);
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    scale = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    height = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    width = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    y = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    x = s->f;
+    
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    string = runt_to_string(s->p);
+
+    img_text(img, x, y, width, height, scale, string);
+
+    return RUNT_OK;
+}
+
 runt_int runt_load_img(runt_vm *vm)
 {
     G.width = WIDTH;
@@ -875,5 +966,6 @@ runt_int runt_load_img(runt_vm *vm)
     runt_word_define(vm, "img_setsize", 11, rproc_setsize);
     runt_word_define(vm, "img_blk", 7, rproc_blk);
     runt_word_define(vm, "img_writec", 10, rproc_writec);
+    runt_word_define(vm, "img_text", 8, rproc_text);
     return RUNT_OK;
 }
