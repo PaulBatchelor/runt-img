@@ -99,3 +99,9 @@ desc: fills a square on a grid dividing pixel into 8x8 chunks
 word: img_writec
 args: name, filename
 desc: writes a 8-bit rgb C array with header guard and dimensions 
+
+word: img_writeb
+args: name, filename
+desc: writes a "pseudo-bitmap" to file. output is 8-bit array with a byte for 
+each pixel. the value of each pixel is either a one or zero depending on if
+the R channel is 255 or not (or alpha channel is 0).
