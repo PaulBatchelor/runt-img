@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <runt.h>
+#include "img.h"
 
 static runt_int loader(runt_vm *vm)
 {

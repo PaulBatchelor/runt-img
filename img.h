@@ -1,5 +1,6 @@
 #ifndef RUNTIMG_H
 #define RUNTIMG_H
+runt_int runt_load_img(runt_vm *vm);
 void img_fill();
 void img_point(unsigned int x, unsigned int y);
 void img_write(const char *filename);

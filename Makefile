@@ -1,6 +1,8 @@
 default: librunt_img.a rntimg
 
-CFLAGS = -ansi -fPIC -pedantic -Wall
+CFLAGS = -ansi -fPIC -pedantic -Wall -I$(HOME)/.runt/include
+LDFLAGS = -L$(HOME)/.runt/lib -lrunt librunt_img.a  -ldl -lGL
+
 
 OBJ=img.o lodepng.o
 
@@ -11,7 +13,7 @@ librunt_img.a: $(OBJ)
 	ar rcs $@ $(OBJ)
 
 rntimg: parse.c librunt_img.a
-	$(CC) parse.c -o $@ -lrunt librunt_img.a  -ldl -lGL
+	$(CC) $(CFLAGS) parse.c -o $@ $(LDFLAGS)
 
 install: librunt_img.a
 	mkdir -p ~/.runt/lib
