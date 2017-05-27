@@ -894,6 +894,70 @@ static runt_int rproc_writec(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static runt_int rproc_writeb(runt_vm *vm, runt_ptr p)
+{
+    int x, y;
+    int pos;
+    unsigned char *d;
+    const char *filename;
+    const char *varname;
+    char macro[25];
+    int len;
+    FILE *fp;
+    int counter;
+    runt_stacklet *s;
+    runt_uint rc;
+
+    counter = 0;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    filename = runt_to_string(s->p);
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    varname = runt_to_string(s->p);
+
+    fp = fopen(filename, "w");
+    if(fp == NULL) {
+        runt_print(vm, "img_writec: could not open file %s\n", filename);
+    }
+
+    len = strlen(varname);
+
+    for(x = 0; x < 25; x++) {
+        if(x < len) {
+            macro[x] = toupper(varname[x]);
+        } else {
+            macro[x] = 0;
+        }
+    }
+    fprintf(fp, "#ifndef IMG_%s\n#define IMG_%s\n", macro, macro);
+    fprintf(fp, "#define IMG_%s_WIDTH %d\n", macro, G.width);
+    fprintf(fp, "#define IMG_%s_HEIGHT %d\n", macro, G.height);
+    fprintf(fp, "const unsigned char %s[] = {\n", varname);
+    d = data;
+    for(y = 0; y < G.height; y++) {
+        for(x = 0; x < G.width; x++) {
+            pos = y * G.width * 4 + x * 4;
+            if(d[pos] != 255) {
+                fprintf(fp, "1, ");
+            } else {
+                fprintf(fp, "0, ");
+            }
+            counter++;
+            if(counter % 16 == 0) {
+                fprintf(fp, "\n");
+            }
+        }
+    }
+
+    fprintf(fp,"};\n");
+    fprintf(fp,"#endif\n");
+    fclose(fp);
+    return RUNT_OK;
+}
+
 static runt_int rproc_text(runt_vm *vm, runt_ptr p)
 {
     runt_int rc;
@@ -967,5 +1031,6 @@ runt_int runt_load_img(runt_vm *vm)
     runt_word_define(vm, "img_blk", 7, rproc_blk);
     runt_word_define(vm, "img_writec", 10, rproc_writec);
     runt_word_define(vm, "img_text", 8, rproc_text);
+    runt_word_define(vm, "img_writeb", 10, rproc_writeb);
     return RUNT_OK;
 }
