@@ -940,8 +940,7 @@ static runt_int rproc_writeb(runt_vm *vm, runt_ptr p)
     for(y = 0; y < G.height; y++) {
         for(x = 0; x < G.width; x++) {
             pos = y * G.width * 4 + x * 4;
-            /* TODO: make transparency work */
-            if(d[pos] != 255 || d[pos + 3] != 0) {
+            if(d[pos] != 255 && d[pos + 3] == 255) {
                 fprintf(fp, "1, ");
             } else {
                 fprintf(fp, "0, ");
