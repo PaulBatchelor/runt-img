@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <runt.h>
+#ifdef RUNT_IMG_GL
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#endif
 #include <ctype.h>
 #include "lodepng.h"
 #include "img.h"
@@ -785,6 +787,7 @@ static int rproc_xy(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+#ifdef RUNT_IMG_GL
 static runt_int rproc_gl(runt_vm *vm, runt_ptr p)
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -795,6 +798,7 @@ static runt_int rproc_gl(runt_vm *vm, runt_ptr p)
     glFlush();
     return RUNT_OK;
 }
+#endif
 
 static runt_int rproc_setsize(runt_vm *vm, runt_ptr p)
 {
@@ -1028,7 +1032,9 @@ runt_int runt_load_img(runt_vm *vm)
     runt_word_define(vm, "img_copy", 8, rproc_copy);
     runt_word_define(vm, "img_glyph", 9, rproc_glyph);
     runt_word_define(vm, "img_xy", 6, rproc_xy);
+#ifdef RUNT_IMG_GL
     runt_word_define(vm, "img_gl", 6, rproc_gl);
+#endif
     runt_word_define(vm, "img_setsize", 11, rproc_setsize);
     runt_word_define(vm, "img_blk", 7, rproc_blk);
     runt_word_define(vm, "img_writec", 10, rproc_writec);

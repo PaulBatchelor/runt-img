@@ -1,8 +1,12 @@
 default: librunt_img.a rntimg
 
 CFLAGS = -ansi -fPIC -pedantic -Wall -I$(HOME)/.runt/include
-LDFLAGS = -L$(HOME)/.runt/lib -lrunt librunt_img.a  -ldl -lGL
+LDFLAGS = -L$(HOME)/.runt/lib -lrunt librunt_img.a  -ldl 
 
+ifdef RUNT_IMG_GL
+CFLAGS += -DRUNT_IMG_GL
+LDFLAGS += -lGL
+endif
 
 OBJ=img.o lodepng.o
 
