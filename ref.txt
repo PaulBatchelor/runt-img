@@ -105,3 +105,12 @@ args: name, filename
 desc: writes a "pseudo-bitmap" to file. output is 8-bit array with a byte for 
 each pixel. the value of each pixel is either a one or zero depending on if
 the R channel is 255 or not (or alpha channel is 0).
+
+word: img_writebmf
+args: name, filename
+desc: generates 8x8 bitmap font tileset. based on img_writeb, this sets up
+a header file so that each 8x8 square is in contiguous memory. If set up
+to match an ascii charset (128x128 image, 16x16 blocks), this makes 
+font lookup a very fast operation: buf['A'<<3] would derive position for
+'A'. Similar to XBM format, every 8-pixels are stored in the bits of a byte.
+This makes each glyph only 8 bytes, as opposed to 64 bytes with img_writeb.

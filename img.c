@@ -30,6 +30,13 @@ typedef struct {
     unsigned char *data;
 } img_image;
 
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} img_pixel;
+
 static unsigned char data[WIDTH * HEIGHT * 4];
 
 static unsigned char current_color[4];
@@ -1007,6 +1014,97 @@ static runt_int rproc_text(runt_vm *vm, runt_ptr p)
     return RUNT_OK;
 }
 
+static unsigned char get_byte(int xpos, int ypos, int off)
+{
+    int x, y;
+    int xend;
+    img_pixel *d;
+    unsigned char b;
+    int pos;
+    pos = 4 * ((8*ypos*G.width + off*G.width) + 8 * xpos);
+    /* 4 = size of one pixel, 8 = size of block */
+    d = &data[pos];
+    b = 0;
+    unsigned char c;
+    c = 7;
+
+
+    for(x = 0; x < 8; x++) {
+        if(d[x].r != 255) {
+            b |= 1 << c;
+        }
+        c--;
+    }
+
+    return b;
+}
+
+static runt_int rproc_writebmf(runt_vm *vm, runt_ptr p)
+{
+    int x, y;
+    int pos;
+    unsigned char *d;
+    const char *filename;
+    const char *varname;
+    char macro[25];
+    int len;
+    FILE *fp;
+    int counter;
+    runt_stacklet *s;
+    runt_uint rc;
+    int xblks;
+    int yblks;
+    int c;
+    unsigned char byte;
+
+    counter = 0;
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    filename = runt_to_string(s->p);
+
+    rc = runt_ppop(vm, &s);
+    RUNT_ERROR_CHECK(rc);
+    varname = runt_to_string(s->p);
+
+    fp = fopen(filename, "w");
+    if(fp == NULL) {
+        runt_print(vm, "img_writec: could not open file %s\n", filename);
+    }
+
+    len = strlen(varname);
+
+    for(x = 0; x < 25; x++) {
+        if(x < len) {
+            macro[x] = toupper(varname[x]);
+        } else {
+            macro[x] = 0;
+        }
+    }
+    d = data;
+    xblks = G.width / 8;
+    yblks = G.height / 8;
+    
+    fprintf(fp, "#ifndef IMG_%s\n#define IMG_%s\n", macro, macro);
+    fprintf(fp, "#define IMG_%s_SIZE %d\n", macro, xblks * yblks);
+    fprintf(fp, "const unsigned char %s[] = {\n", varname);
+    
+    for(y = 0; y < yblks; y++) {
+        for(x = 0; x < xblks; x++) {
+            for(c = 0; c < 8; c++) {
+                byte = get_byte(x, y, c);
+                fprintf(fp, "0x%02x, ", byte);
+            }
+            fprintf(fp, "\n");
+        }
+    }
+
+    fprintf(fp,"};\n");
+    fprintf(fp,"#endif\n");
+    fclose(fp);
+    return RUNT_OK;
+}
+
 runt_int runt_load_img(runt_vm *vm)
 {
     unsigned int i;
@@ -1040,5 +1138,6 @@ runt_int runt_load_img(runt_vm *vm)
     runt_word_define(vm, "img_writec", 10, rproc_writec);
     runt_word_define(vm, "img_text", 8, rproc_text);
     runt_word_define(vm, "img_writeb", 10, rproc_writeb);
+    runt_word_define(vm, "img_writebmf", 12, rproc_writebmf);
     return RUNT_OK;
 }
