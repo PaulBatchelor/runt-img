@@ -83,11 +83,7 @@ void img_fill()
     int pos;
     for(y = 0; y < G.height ; y++)  {
         for(x = 0; x < G.width; x++) {
-            pos = y * G.width * 4 + x * 4;
-            data[pos] = current_color[0];
-            data[pos + 1] = current_color[1];
-            data[pos + 2] = current_color[2];
-            data[pos + 3] = current_color[3];
+            G.point(x, y);
         }
     }
 }
@@ -370,6 +366,16 @@ void img_text(img_image *img,
 }
 
 
+void img_setsize(unsigned int w, unsigned int h)
+{
+    G.width = w;
+    G.height = h;
+}
+
+unsigned char *img_get_data()
+{
+    return data;
+}
 
 /* BEGIN RUNT PROCEDURES */
 
@@ -811,14 +817,17 @@ static runt_int rproc_setsize(runt_vm *vm, runt_ptr p)
 {
     runt_int rc;
     runt_stacklet *s;
+    runt_uint w, h;
 
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    G.height = s->f;
+    h = s->f;
     
     rc = runt_ppop(vm, &s);
     RUNT_ERROR_CHECK(rc);
-    G.width= s->f;
+    w = s->f;
+
+    img_setsize(w, h);
 
     return RUNT_OK;
 }

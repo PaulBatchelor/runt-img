@@ -24,5 +24,7 @@ void img_circ(int x0, int y0, int radius);
 void img_ocirc(int x0, int y0, int radius);
 void img_get(int x, int y, unsigned char **col);
 unsigned char *img_get_current_color();
+unsigned char *img_get_data();
 void img_set_point_function(void (*f)(unsigned int, unsigned int));
+void img_setsize(unsigned int w, unsigned int h);
 #endif
